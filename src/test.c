@@ -42,7 +42,7 @@ void main(void)
         fc_textcolor(i&15);
         fc_puts("well hello from fcio!!");
     }
-    fc_displayFCIFile("luna2.fci", 40, 3);
+    fc_displayFCIFile("luna.fci", 40, 3);
     fc_textcolor(5);
     fc_putsxy(0,31," -- press any key --");
     cgetc();
