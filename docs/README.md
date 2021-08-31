@@ -24,9 +24,9 @@ Please note that at the moment, FCIO "only" supports displaying graphics and tex
 
 ### 1. Hello FCIO
 
-Let's start with something really simple: Switching the screen to full colour mode and displaying some text. In order to do so, simply clone the mega65-libc to a convenient location and type in the following code:
+Let's start with something really simple: Switching the screen to full colour mode and displaying some text. In order to do so, simply clone the mega65-libc to a convenient location, type in the following code and save it at **test.c**.
 
-```
+```c
 #include <fcio.h>
 
 void main() {
@@ -36,3 +36,28 @@ void main() {
 }
 ```
 
+Assuming you have the mega65-libc in the same folder as the test program, compile your program with
+
+```
+cl65 -Imega65-libc/cc65/include -o test test.c mega65-libc/cc65/src/fcio.c mega65-libc/cc65/src/memory.c
+```
+
+(you need to compile both `fcio.c` and `memory.c`, because `fcio.c` depends on `memory.c`. In the later stages of this tutorial, we'll use `SCons` to do the grunt work for us; but for now, calling CC65's compile and link utility `cl65` directly will suffice)
+
+After `cl65` has done its magic, there should be a new `test` binary in your current folder. You can now transfer it to your MEGA65 using your trusty `m65` utility like so:
+
+```
+m65 -4 test -l /dev/ttyUSB2
+```
+
+or, if your MEGA65 got stuck in the mail, fire up your xemu emulator:
+
+```
+xemu-xmega65 -prg ./test
+```
+
+In any case, the result should be the same: A green 'hello world' on a black background.
+
+[image:
+
+Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. 
