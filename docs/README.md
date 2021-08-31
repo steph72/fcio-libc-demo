@@ -35,7 +35,6 @@ void main() {
    while(1);
 }
 ```
-
 Assuming you have the mega65-libc in the same folder as the test program, compile your program with
 
 ```
@@ -58,6 +57,8 @@ xemu-xmega65 -prg ./test
 
 In any case, the result should be the same: A green 'hello world' on a black background.
 
-[image:
+<img src="tut0.png" width="384"/><br/>
 
-Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. 
+Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, lets make things a little bit more interesting, shall we?
+
+
