@@ -115,11 +115,10 @@ To be perfectly honest, this would also have been possible with standard charact
 
 But before we can do just that, we first have to take care of getting some pretty bitmap graphics onto the MEGA65, preferrably in a form that FCIO understands.
 
-## 3. How to get images onto the MEGA65
+## 3. How to get bitmap images onto the MEGA65
 
 `fcio` internally uses an image format called `.FCI` (for *full colour image*). There is nothing magical about `.FCI` images – they just have their bitmap data arranged in a way that the VIC-IV can easily display. 
 
-There is a tool `png2fci` available for converting PNG files to FCI images.
+There is a python tool `png2fci` available for converting PNG files to FCI images. It is available at https://raw.githubusercontent.com/MEGA65/mega65-tools/master/src/tools/png2fci.py. Just install `png2fci` somewhere in your `$PATH` and you're set to go.
 
-Now you might probably ask, *"why can't `fcio` support PNG files directly, without the round trip to FCI?"*. The answer is that it would take quite a bit of code to read and convert PNG files into a format that the VIC-IV can display. Because of CC65's – ahem – less than optimal code generation and its inability to use the MEGA65's extended memory, this would greatly increase the size of the library and leave you less precious memory for your program. So at least while we're stuck with a suboptimal compiler, FCI files are the most sensible way to go.
-
+(Now you might probably ask, *"why can't `fcio` support PNG files directly, without the round trip to FCI?"*. The answer is that it would take quite a bit of code to read and convert PNG files into a format that the VIC-IV can display. Because of CC65's – ahem – less than optimal code generation and its inability to use the MEGA65's extended memory, this would greatly increase the size of the library and leave you less precious memory for your program. So at least while we're stuck with a suboptimal compiler, FCI files are the most sensible way to go)
