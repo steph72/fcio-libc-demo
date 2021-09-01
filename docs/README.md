@@ -6,9 +6,10 @@
 *fcio* is a lightweight C library providing full colour mode support for C programmers on the MEGA65:
 
 - standard text input/output facilities (fc_puts, fc_printf, fc_input...)
+- text window support (fc_makewin, fc_setwin...)
 - dynamically loading and displaying bitmap images (fc_loadFCI, fc_displayFCI...)
 - palette manipulation (fc_loadPalette, fc_setPalette, fc_fadePalette...)
-- and some varous other bells and whistles
+- and some various other bells and whistles
 
 Since *fcio* is now a part of [mega65-libc](https://github.com/MEGA65/mega65-libc), I figured people might be interested in how to load and display pictures and text using the fcio library. So this is a little tutorial showing how to accomplish exactly that.
 
@@ -70,10 +71,27 @@ The prototype of `fcio_init` is:
 void fc_init(byte h640, byte v400, fcioConf *config, byte rows, char *reservedBitmapFile);
 ```
 
-So, when initializing the library with `fc_init(0,0,0,0,0)`, here is what actually is going on:
+So, when initializing the library with `fc_init(0,0,0,0,0)`, here is what actually happens:
 
 - the H640 and V400 flags are set to 0, giving us a low resolution (320x200) screen.
-- by passing "0" as the config pointer, the standard memory configuration is selected (fcio allows you to place bitmap and character data anywhere in memory, but it can also handle those things for you)
+- by passing "0" as the "config" parameter, the standard memory configuration is selected (fcio allows you to place bitmap and character data anywhere in memory, but it can also handle those things for you when you pass '0')
 - by passing "0" as the "rows" parameter, a standard screen with 25 character rows is created. Unlike the C64, the MEGA65 allows arbitrary screen configurations. In PAL mode, it is possible to have up to 33 character rows in non-V400 modes
 - and finally, by passing "0" as the reservedBitmapFile parameter, no reserved bitmap is loaded at initialization. Don't worry about that now, we'll be looking at reserved bitmaps later.
+
+So, with that knowledge, it's quite easy to set up a high resolution screen with a few extra columns to play with:
+
+```c
+#include <fcio.h>
+
+void main() {
+   byte i;
+   fc_init(1,1,0,60,0);
+   POKE(0xd020u,5);
+   for (i=0;i<60;++i) {
+      fc_textcolor(1+(i%14));
+      fc_putsxy(i,i,"Hello world!");
+   }
+   while(1);
+}
+```
 
