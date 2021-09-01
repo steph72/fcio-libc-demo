@@ -61,4 +61,19 @@ In any case, the result should be the same: A green 'hello world' on a black bac
 
 Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, lets make things a little bit more interesting, shall we?
 
+### 2. Configuring the screen
+
+At initialization time, there is a lot of things going on behind the scenes. 
+The prototype of `fcio_init` is:
+
+```c
+void fc_init(byte h640, byte v400, fcioConf *config, byte rows, char *reservedBitmapFile);
+```
+
+So, when initializing the library with `fc_init(0,0,0,0,0)`, here is what actually is going on:
+
+- the H640 and V400 flags are set to 0, giving us a low resolution (320x200) screen.
+- by passing "0" as the config pointer, the standard memory configuration is selected (fcio allows you to place bitmap and character data anywhere in memory, but it can also handle those things for you)
+- by passing "0" as the "rows" parameter, a standard screen with 25 character rows is created. Unlike the C64, the MEGA65 allows arbitrary screen configurations. In PAL mode, it is possible to have up to 33 character rows in non-V400 modes
+- and finally, by passing "0" as the reservedBitmapFile parameter, no reserved bitmap is loaded at initialization. Don't worry about that now, we'll be looking at reserved bitmaps later.
 
