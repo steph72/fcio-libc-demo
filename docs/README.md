@@ -1,7 +1,4 @@
-# A FCIO tutorial
-
-
-### What is FCIO?
+## Preface: What is FCIO?
 
 *fcio* is a lightweight C library providing full colour mode support for C programmers on the MEGA65:
 
@@ -13,7 +10,7 @@
 
 Since *fcio* is now a part of [mega65-libc](https://github.com/MEGA65/mega65-libc), I figured people might be interested in how to load and display pictures and text using the fcio library. So this is a little tutorial showing how to accomplish exactly that.
 
-### What is Full Colour Mode?
+## What is Full Colour Mode?
 
 Full Colour Mode (FCM for short) is a new screen mode of the MEGA65's video controller (the VIC-IV). Full Colour Mode allows you to  mix text and 24 bit graphics on the same screen, as well as performing all kinds of neat tricks with the display, such as overlaying additional content, flipping and mirroring character cells and much more.
 
@@ -21,9 +18,9 @@ Since in FCM, each 8x8 pixel character cell on the screen is referenced by a 16 
 
 Please note that at the moment, FCIO "only" supports displaying graphics and text, but this might very well change in the future.
 
-## The Tutorial
+# The Tutorial
 
-### 1. Hello FCIO
+## 1. Hello FCIO
 
 Let's start with something really simple: Switching the screen to full colour mode and displaying some text. In order to do so, simply clone the mega65-libc to a convenient location, type in the following code and save it at **test.c**.
 
@@ -62,7 +59,7 @@ In any case, the result should be the same: A green 'hello world' on a black bac
 
 Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, let's make things a little bit more interesting, shall we?
 
-### 2. Configuring the screen
+## 2. Configuring the screen
 
 At initialization time, there is a lot of things going on behind the scenes. 
 The prototype of `fcio_init` is:
