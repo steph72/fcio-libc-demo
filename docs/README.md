@@ -55,7 +55,7 @@ xemu-xmega65 -prg ./test
 
 In any case, the result should be the same: A green 'hello world' on a black background.
 
-<img src="tut0.png" width="384"/><br/>
+<img src="tut0.png" width="400"/><br/>
 
 Not much to look at, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, let's make things a little bit more interesting, shall we?
 
@@ -83,16 +83,30 @@ So, with that knowledge, it's quite easy to set up a high resolution screen with
 
 ```c
 #include <fcio.h>
+#include <conio.h>
 
 void main() {
    byte i;
    fc_init(1,1,0,60,0);
-   POKE(0xd020u,5);
+   bordercolor(6);
    for (i=0;i<60;++i) {
       fc_textcolor(1+(i%14));
-      fc_putsxy(i,i,"Hello world!");
+      fc_gotoxy(i,i);
+      fc_printf("Hello world #%d",i);
    }
    while(1);
 }
 ```
+Compile and link the program again. Before running it, remember to set your MEGA65 to operate in PAL mode, as NTSC mode doesn't provide enough resolution for a screen with 60 text rows.
 
+Assuming all went well, you should now see something like this:
+
+<img src="tut1.png" width="400"/><br/>
+
+Now we're talking! 60 rows of text in high resolution. 
+
+But to tell the truth, this would also have been possible with standard character mode. So, it's time we unleashed FCIOs full power by displaying some pretty bitmap graphics.
+
+But before we can do just that, we first have to take care of getting some pretty bitmap graphics onto the MEGA65, preferrably in a form that FCIO understands.
+
+## 3. How to get images onto the MEGA65
