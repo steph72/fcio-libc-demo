@@ -1,6 +1,6 @@
 ## Preface: What is FCIO?
 
-*fcio* is a lightweight C library providing full colour mode support for C programmers on the MEGA65:
+*fcio* is a lightweight C library providing full colour mode support for C developers on the MEGA65:
 
 - standard text input/output facilities (fc_puts, fc_printf, fc_input...)
 - text window support (fc_makewin, fc_setwin...)
@@ -57,7 +57,7 @@ In any case, the result should be the same: A green 'hello world' on a black bac
 
 <img src="tut0.png" width="384"/><br/>
 
-Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, let's make things a little bit more interesting, shall we?
+Not much to look at, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, let's make things a little bit more interesting, shall we?
 
 ## 2. Configuring the screen
 
@@ -65,7 +65,11 @@ At initialization time, there is a lot of things going on behind the scenes.
 The prototype of `fcio_init` is:
 
 ```c
-void fc_init(byte h640, byte v400, fcioConf *config, byte rows, char *reservedBitmapFile);
+void fc_init(byte h640, 
+             byte v400, 
+             fcioConf *config, 
+             byte rows, 
+             char *reservedBitmapFile);
 ```
 
 So, when initializing the library with `fc_init(0,0,0,0,0)`, here is what actually happens:
