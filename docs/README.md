@@ -60,7 +60,7 @@ In any case, the result should be the same: A green 'hello world' on a black bac
 
 <img src="tut0.png" width="384"/><br/>
 
-Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, lets make things a little bit more interesting, shall we?
+Nothing much, you might think, but you have just successfully initialized a full colour mode screen and put some text on it. Now, let's make things a little bit more interesting, shall we?
 
 ### 2. Configuring the screen
 
