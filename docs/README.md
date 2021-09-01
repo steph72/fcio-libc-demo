@@ -97,7 +97,13 @@ void main() {
    while(1);
 }
 ```
-Compile and link the program again. Before running it, remember to set your MEGA65 to operate in PAL mode, as NTSC mode doesn't provide enough resolution for a screen with 60 text rows.
+There are a few things noteworthy about this program:
+
+1. We include the `conio.h` header, because we're using the `bordercolor`function to change the border colour. This shows that `conio.h` and `fcio.h` are able to coexist (in fact, some portions of `fcio.h` depend on `conio.h`). Just don't think about mixing `conio`s text output functions to display text on a full colour screen (and vice versa) – it won't work and will most probably lead to sad things™.
+
+2. You can use `fc_printf` just like you would use the regular `printf` function. It accepts the same variable arguments and acts just like its `stdio.h` counterpart. 
+
+Compile and link the program again. Before running it, remember to set your MEGA65 to operate in PAL mode, as NTSC mode doesn't provide quite enough resolution for a screen with 60 text rows.
 
 Assuming all went well, you should now see something like this:
 
@@ -105,8 +111,15 @@ Assuming all went well, you should now see something like this:
 
 Now we're talking! 60 rows of text in high resolution. 
 
-But to tell the truth, this would also have been possible with standard character mode. So, it's time we unleashed FCIOs full power by displaying some pretty bitmap graphics.
+To be perfectly honest, this would also have been possible with standard character mode. So, it's time we unleashed FCIOs full power by displaying some pretty bitmap graphics.
 
 But before we can do just that, we first have to take care of getting some pretty bitmap graphics onto the MEGA65, preferrably in a form that FCIO understands.
 
 ## 3. How to get images onto the MEGA65
+
+`fcio` internally uses an image format called `.FCI` (for *full colour image*). There is nothing magical about `.FCI` images – they just have their bitmap data arranged in a way that the VIC-IV can easily display. 
+
+There is a tool `png2fci` available for converting PNG files to FCI images.
+
+Now you might probably ask, *"why can't `fcio` support PNG files directly, without the round trip to FCI?"*. The answer is that it would take quite a bit of code to read and convert PNG files into a format that the VIC-IV can display. Because of CC65's – ahem – less than optimal code generation and its inability to use the MEGA65's extended memory, this would greatly increase the size of the library and leave you less precious memory for your program. So at least while we're stuck with a suboptimal compiler, FCI files are the most sensible way to go.
+
