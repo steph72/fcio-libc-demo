@@ -127,4 +127,20 @@ Before continuing with this tutorial, install `png2fci` somewhere in your `$PATH
 
 Since the VIC-IV is a palette based chip, we need a source image that is indexed. Furthermore, if we want to keep the 15 system colours – which we do for the time being –, we need a indexed source picture using less than 240 colours.
 
-Fortunately, there's a wide range of software which allows us to convert about any image into the desired shape. In this tutorial, we'll use GIMP, but of course Adobe's subscription-based highway robbery called "Photoshop" will also do nicely. 
+Fortunately, there's a wide range of software which allows us to convert about any image into the desired shape. In this tutorial, we'll use GIMP, but of course any commercial software or subscription rip-off will do just as nicely.
+
+To get started, Let's take this JPEG image of Candor, my trusty co-developer (or really any other JPEG you want):
+
+<img src="candor.jpg" width="800"/><br/>
+
+Right-click on the image and save it somewhere, then open it up with GIMP. 
+
+The first thing we have to do is to convert this image from RGB to indexed colour. So, in GIMP select "Image -> Mode -> Indexed..." in the menu, which brings up this dialog:
+
+<img src="gimp1.png"/><br/>
+
+Make sure that you're converting the image to a maximum of 240 colours (remember, we want to keep the system colours). Then press 'convert' to actually start the conversion.
+
+After converting the image to indexed colour, there's one last thing we need to change: The image is way too big for displaying it on the MEGA65. Let's scale it down to a more MEGA65 friendly size by selecting "Image -> Image size" and then requesting an image size of 256x192 pixels:
+
+<img src="gimp2.png"/><br/>
