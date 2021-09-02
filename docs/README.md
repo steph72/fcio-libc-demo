@@ -117,8 +117,14 @@ But before we can do just that, we first have to take care of getting some prett
 
 ## 3. How to get bitmap images onto the MEGA65
 
-`fcio` internally uses an image format called `.FCI` (for *full colour image*). There is nothing magical about `.FCI` images – they just have their bitmap data arranged in a way that the VIC-IV can easily display. 
+`fcio` internally uses an image format called `.FCI` (for *full colour image*). There is nothing magical about `.FCI` images – they just have their bitmap data arranged in a way that the VIC-IV can easily display, so `fcio` doesn't need much code to load and display them which means more real estate for your programs. 
 
-There is a python tool `png2fci` available for converting PNG files to FCI images. It is available at https://raw.githubusercontent.com/MEGA65/mega65-tools/master/src/tools/png2fci.py. Just install `png2fci` somewhere in your `$PATH` and you're set to go.
+There is a python tool `png2fci` available for converting PNG files to FCI images. It is available at https://raw.githubusercontent.com/MEGA65/mega65-tools/master/src/tools/png2fci.py. 
 
-(Now you might probably ask, *"why can't `fcio` support PNG files directly, without the round trip to FCI?"*. The answer is that it would take quite a bit of code to read and convert PNG files into a format that the VIC-IV can display. Because of CC65's – ahem – less than optimal code generation and its inability to use the MEGA65's extended memory, this would greatly increase the size of the library and leave you less precious memory for your program. So at least while we're stuck with a suboptimal compiler, FCI files are the most sensible way to go)
+Before continuing with this tutorial, install `png2fci` somewhere in your `$PATH` and you're set to go.
+
+### 3.1 Provide an indexed PNG with suitable dimensions
+
+Since the VIC-IV is a palette based chip, we need a source image that is indexed. Furthermore, if we want to keep the 15 system colours – which we do for the time being –, we need a indexed source picture using less than 240 colours.
+
+Fortunately, there's a wide range of software which allows us to convert about any image into the desired shape. In this tutorial, we'll use GIMP, but of course Adobe's subscription-based highway robbery called "Photoshop" will also do nicely. 
