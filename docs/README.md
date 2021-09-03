@@ -139,8 +139,33 @@ The first thing we have to do is to convert this image from RGB to indexed colou
 
 <img src="gimp1.png"/><br/>
 
-Make sure that you're converting the image to a maximum of 240 colours (remember, we want to keep the system colours). Then press 'convert' to actually start the conversion.
+Make sure to convert the image to a maximum of 240 colours (remember, we want to keep the system colours). 
 
 After converting the image to indexed colour, there's one last thing we need to change: The image is way too big for displaying it on the MEGA65. Let's scale it down to a more MEGA65 friendly size by selecting "Image -> Image size" and then requesting an image size of 256x192 pixels:
 
 <img src="gimp2.png"/><br/>
+
+**Important**: Both width and height of the image *need* to be a multiple of 8. That's because the VIC-IV displays bitmap images via 8x8 pixel character cells.
+
+### 3.2 Converting PNG to FCI images
+
+With this friendly word of caution out of the way, we can now save the image (be sure to save the image as PNG, because that's the only format `png2fci` understands) and convert it with the `png2fci` utility. 
+
+Assuming your PNG file is named `candor.png`, call:
+
+```
+png2fci.py -rv candor.png candor.fci
+```
+
+Without any options, `png2fci` simply converts the PNG into an FCI. We are using the **-r** and **-v** flags here to reserve the first 15 colours, and to display some info about the conversion, respectively. If all goes well, `png2fci` should display
+
+```
+### png2fci v1.0 ###
+reading candor.png
+infile size is  256 x 192 pixels
+reserving system colour space
+outfile has 256 palette entries
+using 24 rows, 32 columns.
+building outfile
+done.
+```
