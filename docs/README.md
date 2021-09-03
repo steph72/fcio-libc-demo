@@ -1,3 +1,5 @@
+# FCIO Tutorial
+
 ## Preface: What is FCIO?
 
 *fcio* is a lightweight C library providing full colour mode support for C developers on the MEGA65:
@@ -125,7 +127,7 @@ Before continuing with this tutorial, install `png2fci` somewhere in your `$PATH
 
 ### 3.1 Provide an indexed PNG with suitable dimensions
 
-Since the VIC-IV is a palette based chip, we need a source image that is indexed. Furthermore, if we want to keep the 15 system colours – which we do for the time being –, we need a indexed source picture using less than 240 colours.
+Since the VIC-IV is a palette based chip, we need a source image that is indexed. If we want to keep things simple, we need a picture using a maximum of 239 colours (the VIC-IV uses colour index 255 for a special purpose, and while it's perfectly possible to overwrite the system palette of colours 0-15, we don't want to do so just yet. This leaves 239 usable palette entries).
 
 Fortunately, there's a wide range of software which allows us to convert about any image into the desired shape. In this tutorial, we'll use GIMP, but of course any commercial software or subscription rip-off will do just as nicely.
 
@@ -164,8 +166,69 @@ Without any options, `png2fci` simply converts the PNG into an FCI. We are using
 reading candor.png
 infile size is  256 x 192 pixels
 reserving system colour space
-outfile has 256 palette entries
+outfile has 255 palette entries
 using 24 rows, 32 columns.
 building outfile
 done.
 ```
+## 4. Displaying bitmap images
+
+Now it's time to expand our little program from section #2 to load and display our newly created FCI image:
+
+```
+#include <fcio.h>
+#include <conio.h>
+
+void main() {
+   byte i;
+   long t;
+   fc_init(1,1,0,60,0);
+   bordercolor(6);
+   fc_clrscr();
+   for (i=0;i<60;++i) {
+      fc_textcolor(1+(i%14));
+      fc_gotoxy(i+3,i);
+      fc_printf("Hello world #%d",i);
+   }
+   fc_displayFCIFile("candor.fci",25,16);
+   while(1);
+}
+```
+
+Notice the single line that's been added? `fc_displayFCIFile()` is really all we need to display an FCI file on the screen. Noice.
+
+You can now compile the program again using the same command as before.
+
+```
+cl65 -Imega65-libc/cc65/include -o test test.c mega65-libc/cc65/src/fcio.c mega65-libc/cc65/src/memory.c
+```
+
+But don't fire up your MEGA65 (or emulator) yet, because obviously this won't work just yet. We first need to provide the MEGA65 with a disc image to load the FCI file from. 
+
+### 4.1 Building a disc image
+
+The easiest way to do so is to use the `c1541` tool, which is part of the VICE emulator suite. 
+
+To create a .d81 image (currently the only type of image the MEGA65 can handle), type:
+
+```
+c1541 -format fcdemo,sk d81 fcioDemo.d81
+```
+
+This will create an empty `fcioDemo.d81` disc image in your current directory. Assuming this is the same directory your demo program and FCI file are living in, you can now copy the necessary files to the image via:
+
+```
+c1541 fcioDemo.d81 -write test
+```
+
+and
+
+```
+c1541 fcioDemo.d81 -write candor.fci
+```
+
+So, finally we have a disc image with both the binary and the picture file to load. Mount it on your MEGA65, change to C64 mode (we have to start CC65 binaries from C64 mode) and load it with `LOAD "TEST"`. *Et voilà:*
+
+<img src="tut2.png" width="400"/><br/>
+
+You have just configured a MEGA65 FCM screen and displayed some text and a pretty picture on it... with just 16 lines of code!
