@@ -175,7 +175,7 @@ done.
 
 Now it's time to expand our little program from section #2 to load and display our newly created FCI image:
 
-```
+```c
 #include <fcio.h>
 #include <conio.h>
 
@@ -205,7 +205,7 @@ cl65 -Imega65-libc/cc65/include -o test test.c mega65-libc/cc65/src/fcio.c mega6
 
 But don't fire up your MEGA65 (or emulator) yet, because obviously this won't work just yet. We first need to provide the MEGA65 with a disc image to load the FCI file from. 
 
-### 4.1 Building a disc image
+### 4.1 Building the disc image
 
 The easiest way to do so is to use the `c1541` tool, which is part of the VICE emulator suite. 
 
@@ -232,3 +232,159 @@ So, finally we have a disc image with both the binary and the picture file to lo
 <img src="tut2.png" width="400"/><br/>
 
 You have just configured a MEGA65 FCM screen and displayed some text and a pretty picture on it... with just 16 lines of code!
+
+## 5. Excursion: Making life easier
+
+At this point, manually invoking the compiler and linker, running png2fci and building a new disc image whenever something has changed has become a little bit of a nuisance.
+
+The usual way to deal with this problem is the use of *Makefiles*. Now in my humble opinion, Makefiles are a hostile and unreadable monstrosity, which is why I like to use *SCons* instead. 
+
+### 5.1 SCons to the rescue
+
+[*SCons*](https://scons.org/) is a software construction tool, just like *make*. One of the major differences is that *SConstruct* files (the equivalent to Makefiles) are actually python scripts, so they are much easier to read and to maintain. 
+
+Assuming we still have our main `test.c` program in the same directory as `mega65-libc`, and we want to have the finished binary in a `bin` subdirectory create the following file and save it as `SConstruct`:
+
+```py
+import os
+
+env = Environment(
+    ENV={'PATH': os.environ['PATH']},
+    CPPPATH='mega65-libc/cc65/include',
+    CC='cl65')
+
+test = env.Program('bin/fcdemo.c64', [
+    'test.c',
+    'mega65-libc/cc65/src/memory.c',
+    'mega65-libc/cc65/src/conio.c',
+    'mega65-libc/cc65/src/fcio.c'
+])
+```
+
+Now, calling `scons` will take care of compiling and linking our program into `bin/fcdemo.c64` whenever anything in the list of source files  has changed. 
+
+But we still haven't solved the problem of creating the rest of the files and bundling them together on a disc image. 
+
+### 5.2 Automating `png2fci` and `c1541`
+
+Fortunately, these tasks are relatively easy to automate with a shell script. 
+
+To convert all the PNG files in the folder `img-src` into FCI images and store them in the `res` folder, one would write
+
+```sh
+for filename in img-src/*.png; do
+  python3 tools/png2fci.py -vr $filename res/$(basename $filename .png).fci
+done
+```
+
+Then, to automatically build a disc image containing the binary and the converted image files,
+
+```sh
+DISCNAME="fcdemo.d81"
+
+mkdir -p disc
+c1541 -format fcdemo,sk d81 disc/$DISCNAME
+
+for filename in res/*; do
+  c1541 disc/$DISCNAME -write $filename
+done
+
+c1541 disc/$DISCNAME -write bin/fcdemo.c64
+```
+
+### 5.3 Adding the wrapper 
+
+One unfortunate aspect of working with CC65 is that there is still no C65 compatible runtime, so programs have to be started in C64 mode.
+
+While this is in itself no problem (all MEGA65 features are available from the C64 configuration), it introduces one additional when starting the program, and it might lead to newcomers regarding the resulting code as inferior because "it doesn't run in MEGA65 mode" or whatever.  
+
+A workaround for this problem is the "c65toc64wrapper" program, available [here](https://files.mega65.org?id=b6ebf79e-6b8b-4562-b79a-59e73d10ac7b), to which you can append your CC65 program in order to make it launchable from C65 modee. This is most easily accomplished with the `cat` command:
+
+```
+cat c65bin/c65toc64wrapper.prg bin/fcdemo.c64 > bin/autoboot.c65
+```
+
+Calling the finished (wrapepd) program `autoboot.c65` has the advantage that the MEGA65 will start it automatically when booting from our disc image.
+
+### 5.4 Putting it all together
+
+Combining image conversion, wrapping and disc image creation results in the following shell script:
+
+```sh
+#!/bin/sh
+
+set -e
+DISCNAME="fcdemo.d81"
+
+cat c65bin/c65toc64wrapper.prg bin/fcdemo.c64 > bin/autoboot.c65
+
+mkdir -p res
+for filename in img-src/*.png; do
+  echo $filename
+  python3 tools/png2fci.py -vr $filename res/$(basename $filename .png).fci
+done
+
+mkdir -p disc
+c1541 -format fcdemo,sk d81 disc/$DISCNAME
+
+for filename in res/*; do
+  c1541 disc/$DISCNAME -write $filename
+done
+
+c1541 disc/$DISCNAME -write bin/autoboot.c65
+```
+
+Save this script in `tools/buildDisc.sh`. 
+
+Now all that's left to do is to tell `scons` to invoke the `buildDisc.sh` script after successful compilation of our program. This is easily done by adding a *postAction* to our build, so the complete SConstruct file looks like this:
+
+```py
+import os
+
+env = Environment(
+    ENV={'PATH': os.environ['PATH']},
+    CPPPATH='mega65-libc/cc65/include',
+    CC='cl65')
+
+test = env.Program('bin/fcdemo.c64', [
+    'test.c',
+    'mega65-libc/cc65/src/memory.c',
+    'mega65-libc/cc65/src/conio.c',
+    'mega65-libc/cc65/src/fcio.c'
+])
+
+buildDiscAction = Action('tools/buildDisc.sh')
+env.AddPostAction(test, buildDiscAction)
+```
+
+Now, call `scons -c` to clean up anything that may be left from previous experiment, and then again without the `-c` parameter, to start our build process. The output should read something like
+
+```
+stephan@ammonia:~/devel/tut$ scons
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+scons: Building targets ...
+cl65 -o test.o -c -Imega65-libc/cc65/include test.c
+cl65 -o mega65-libc/cc65/src/memory.o -c -Imega65-libc/cc65/include mega65-libc/cc65/src/memory.c
+cl65 -o mega65-libc/cc65/src/conio.o -c -Imega65-libc/cc65/include mega65-libc/cc65/src/conio.c
+cl65 -o mega65-libc/cc65/src/fcio.o -c -Imega65-libc/cc65/include mega65-libc/cc65/src/fcio.c
+cl65 -o bin/fcdemo.c64 test.o mega65-libc/cc65/src/memory.o mega65-libc/cc65/src/conio.o mega65-libc/cc65/src/fcio.o
+tools/buildDisc.sh
+img-src/candor.png
+### png2fci v1.0 ###
+reading img-src/candor.png
+infile size is  256 x 192 pixels
+reserving system colour space
+outfile has 255 palette entries
+using 24 rows, 32 columns.
+building outfile
+done.
+formatting in unit 8 ...
+writing file `CANDOR.FCI' as `CANDOR.FCI' to unit 8
+writing file `AUTOBOOT.C65' as `AUTOBOOT.C65' to unit 8
+scons: done building targets.
+```
+
+And there we have it: With one simple call of `scons`, you can now compile your sources and build the disc image in one go. 
+
+With the tedious stuff out of the way, we're now ready to dive a little deeper into FCIO!
